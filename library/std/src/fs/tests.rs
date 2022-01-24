@@ -1,5 +1,6 @@
 use crate::io::prelude::*;
 
+use crate::env;
 use crate::fs::{self, File, OpenOptions};
 use crate::io::{ErrorKind, SeekFrom};
 use crate::path::Path;
@@ -192,6 +193,7 @@ fn file_test_io_seek_and_tell_smoke_test() {
         tell_pos_post_read = check!(read_stream.seek(SeekFrom::Current(0)));
     }
     check!(fs::remove_file(filename));
+
     let read_str = str::from_utf8(&read_mem).unwrap();
     assert_eq!(read_str, &message[4..8]);
     assert_eq!(tell_pos_pre_read, set_cursor);
@@ -204,15 +206,18 @@ fn file_test_io_seek_and_write() {
     let overwrite_msg = "-the-bar!!";
     let final_msg = "foo-the-bar!!";
     let seek_idx = 3;
+
     let mut read_mem = [0; 13];
     let tmpdir = tmpdir();
     let filename = &tmpdir.join("file_rt_io_file_test_seek_and_write.txt");
     {
         let mut rw_stream = check!(File::create(filename));
+
         check!(rw_stream.write(initial_msg.as_bytes()));
         check!(rw_stream.seek(SeekFrom::Start(seek_idx)));
         check!(rw_stream.write(overwrite_msg.as_bytes()));
     }
+
     {
         let mut read_stream = check!(File::open(filename));
         check!(read_stream.read(&mut read_mem));
@@ -901,12 +906,26 @@ fn symlink_noexist() {
 #[test]
 fn read_link() {
     if cfg!(windows) {
+        let environment_variable = "CI";
         // directory symlink
         assert_eq!(check!(fs::read_link(r"C:\Users\All Users")), Path::new(r"C:\ProgramData"));
         // junction
         assert_eq!(check!(fs::read_link(r"C:\Users\Default User")), Path::new(r"C:\Users\Default"));
         // junction with special permissions
-        assert_eq!(check!(fs::read_link(r"C:\Documents and Settings\")), Path::new(r"C:\Users"));
+        match env::var(environment_variable) {
+            Ok(_var) => assert_eq!(
+                check!(fs::read_link(r"C:\Documents and settings\")),
+                Path::new(r"C:\Users")
+            ),
+            Err(_e) => {
+                if Path::new(r"C:\Documents and settings\").exists() {
+                    assert_eq!(
+                        check!(fs::read_link(r"C:\Documents and settings\")),
+                        Path::new(r"C:\Users")
+                    )
+                }
+            }
+        }
     }
     let tmpdir = tmpdir();
     let link = tmpdir.join("link");
