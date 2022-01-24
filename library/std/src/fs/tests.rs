@@ -231,6 +231,7 @@ fn file_test_io_seek_and_write() {
 fn file_test_io_seek_shakedown() {
     //                   01234567890123
     let initial_msg = "qwer-asdf-zxcv";
+
     let chunk_one: &str = "qwer";
     let chunk_two: &str = "asdf";
     let chunk_three: &str = "zxcv";
