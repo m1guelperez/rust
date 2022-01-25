@@ -907,14 +907,13 @@ fn symlink_noexist() {
 #[test]
 fn read_link() {
     if cfg!(windows) {
-        let environment_variable = "CI";
         // directory symlink
         assert_eq!(check!(fs::read_link(r"C:\Users\All Users")), Path::new(r"C:\ProgramData"));
         // junction
         assert_eq!(check!(fs::read_link(r"C:\Users\Default User")), Path::new(r"C:\Users\Default"));
         // junction with special permissions
         // Since not all localized windows versions contain the folder "Documents and settings" in english,
-        // we will briefly check, if it exists and otherwise skip the test. Except durin CI we will always execute the test.
+        // we will briefly check, if it exists and otherwise skip the test. Except during CI we will always execute the test.
         if Path::new(r"C:\Documents and settings\").exists() || env::var_os("CI").is_some() {
             assert_eq!(
                 check!(fs::read_link(r"C:\Documents and settings\")),
