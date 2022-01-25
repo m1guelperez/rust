@@ -193,7 +193,6 @@ fn file_test_io_seek_and_tell_smoke_test() {
         tell_pos_post_read = check!(read_stream.seek(SeekFrom::Current(0)));
     }
     check!(fs::remove_file(filename));
-
     let read_str = str::from_utf8(&read_mem).unwrap();
     assert_eq!(read_str, &message[4..8]);
     assert_eq!(tell_pos_pre_read, set_cursor);
