@@ -205,18 +205,15 @@ fn file_test_io_seek_and_write() {
     let overwrite_msg = "-the-bar!!";
     let final_msg = "foo-the-bar!!";
     let seek_idx = 3;
-
     let mut read_mem = [0; 13];
     let tmpdir = tmpdir();
     let filename = &tmpdir.join("file_rt_io_file_test_seek_and_write.txt");
     {
         let mut rw_stream = check!(File::create(filename));
-
         check!(rw_stream.write(initial_msg.as_bytes()));
         check!(rw_stream.seek(SeekFrom::Start(seek_idx)));
         check!(rw_stream.write(overwrite_msg.as_bytes()));
     }
-
     {
         let mut read_stream = check!(File::open(filename));
         check!(read_stream.read(&mut read_mem));
@@ -230,7 +227,6 @@ fn file_test_io_seek_and_write() {
 fn file_test_io_seek_shakedown() {
     //                   01234567890123
     let initial_msg = "qwer-asdf-zxcv";
-
     let chunk_one: &str = "qwer";
     let chunk_two: &str = "asdf";
     let chunk_three: &str = "zxcv";
