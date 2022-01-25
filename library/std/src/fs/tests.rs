@@ -913,19 +913,13 @@ fn read_link() {
         // junction
         assert_eq!(check!(fs::read_link(r"C:\Users\Default User")), Path::new(r"C:\Users\Default"));
         // junction with special permissions
-        match env::var(environment_variable) {
-            Ok(_var) => assert_eq!(
+        // Since not all localized windows versions contain the folder "Documents and settings" in english,
+        // we will briefly check, if it exists and otherwise skip the test. Except durin CI we will always execute the test.
+        if Path::new(r"C:\Documents and settings\").exists() || env::var_os("CI").is_some() {
+            assert_eq!(
                 check!(fs::read_link(r"C:\Documents and settings\")),
                 Path::new(r"C:\Users")
-            ),
-            Err(_e) => {
-                if Path::new(r"C:\Documents and settings\").exists() {
-                    assert_eq!(
-                        check!(fs::read_link(r"C:\Documents and settings\")),
-                        Path::new(r"C:\Users")
-                    )
-                }
-            }
+            );
         }
     }
     let tmpdir = tmpdir();
